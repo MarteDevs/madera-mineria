@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Madera & Minería - API Gateway</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f7f6;
+        }
+        .container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            background: #27ae60;
+            color: white;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .route-list { list-style: none; padding: 0; }
+        .route-item {
+            background: #f9f9f9;
+            margin-bottom: 10px;
+            padding: 15px;
+            border-left: 5px solid #3498db;
+            border-radius: 4px;
+        }
+        .route-path { font-family: monospace; font-weight: bold; color: #e74c3c; }
+        .route-service { font-weight: bold; color: #2980b9; }
+        footer { margin-top: 30px; font-size: 0.9em; color: #7f8c8d; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Madera & Minería - API Gateway</h1>
+        <div class="status">● Sistema Activo</div>
+        
+        <p>El API Gateway está funcionando correctamente. Las siguientes rutas están configuradas:</p>
+        
+        <ul class="route-list">
+            <li class="route-item">
+                <span class="route-service">ms-auth:</span> 
+                <span class="route-path">/api/auth/**</span> ➔ Puerto 8085
+            </li>
+            <li class="route-item">
+                <span class="route-service">ms-inventario:</span> 
+                <span class="route-path">/api/inventario/**</span> ➔ Puerto 8082
+            </li>
+            <li class="route-item">
+                <span class="route-service">ms-pedidos:</span> 
+                <span class="route-path">/api/pedidos/**</span> ➔ Puerto 8083
+            </li>
+            <li class="route-item">
+                <span class="route-service">ms-notificaciones:</span> 
+                <span class="route-path">/api/notificaciones/**</span> ➔ Puerto 8084
+            </li>
+            <li class="route-item">
+                <span class="route-service">ms-entrega:</span> 
+                <span class="route-path">/api/entregas/**</span> ➔ Puerto 8086
+            </li>
+        </ul>
+
+        <div style="margin-top: 20px; padding: 15px; background: #e8f4fd; border-radius: 4px;">
+            <strong>Endpoints de Monitoreo:</strong><br>
+            <a href="/actuator/health">Health Check</a> | 
+            <a href="/actuator/gateway/routes">Ver Rutas (JSON)</a>
+        </div>
+    </div>
+    <footer>
+        &copy; 2026 Madera & Minería - Proyecto Cibertec
+    </footer>
+</body>
+</html>
