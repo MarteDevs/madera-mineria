@@ -1,0 +1,222 @@
+version: '3.8'
+
+services:
+  postgres-db:
+    image: postgres:15-alpine
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: marte
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - madera-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - madera-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ms-auth:
+    build: ./ms-auth
+    container_name: ms-auth
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/auth_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=marte
+    ports:
+      - "8085:8085"
+    networks:
+      - madera-network
+
+  ms-inventario:
+    build: ./ms-inventario
+    container_name: ms-inventario
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/inventario_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=marte
+    ports:
+      - "8082:8082"
+    networks:
+      - madera-network
+
+  ms-pedidos:
+    build: ./ms-pedidos
+    container_name: ms-pedidos
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/pedidos_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=marte
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - FEIGN_CLIENT_CONFIG_MS_INVENTARIO_URL=http://ms-inventario:8082
+    ports:
+      - "8083:8083"
+    networks:
+      - madera-network
+
+  ms-notificaciones:
+    build: ./ms-notificaciones
+    container_name: ms-notificaciones
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/notificaciones_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=marte
+      - SPRING_RABBITMQ_HOST=rabbitmq
+    ports:
+      - "8084:8084"
+    networks:
+      - madera-network
+
+  ms-entrega:
+    build: ./ms-entrega
+    container_name: ms-entrega
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/entrega_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=marte
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - FEIGN_CLIENT_CONFIG_MS_PEDIDOS_URL=http://ms-pedidos:8083
+    ports:
+      - "8086:8086"
+    networks:
+      - madera-network
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    depends_on:
+      - ms-auth
+      - ms-inventario
+      - ms-pedidos
+      - ms-notificaciones
+      - ms-entrega
+    environment:
+      - MS_AUTH_URI=http://ms-auth:8085
+      - MS_INVENTARIO_URI=http://ms-inventario:8082
+      - MS_PEDIDOS_URI=http://ms-pedidos:8083
+      - MS_NOTIFICACIONES_URI=http://ms-notificaciones:8084
+      - MS_ENTREGA_URI=http://ms-entrega:8086
+    ports:
+      - "8080:8080"
+    networks:
+      - madera-network
+
+  # ── OBSERVABILIDAD ───────────────────────────────────────────────────────────
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus-madera
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./observabilidad/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    networks:
+      - madera-network
+    depends_on:
+      - ms-inventario
+      - ms-pedidos
+      - ms-auth
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana-madera
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - madera-network
+    depends_on:
+      - prometheus
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.10
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    networks:
+      - madera-network
+    volumes:
+      - elastic_data:/usr/share/elasticsearch/data
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.17.10
+    container_name: logstash
+    volumes:
+      - ./observabilidad/logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    ports:
+      - "5044:5044"
+    networks:
+      - madera-network
+    depends_on:
+      - elasticsearch
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.17.10
+    container_name: kibana
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    networks:
+      - madera-network
+    depends_on:
+      - elasticsearch
+
+networks:
+  madera-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  prometheus_data:
+  grafana_data:
+  elastic_data:
