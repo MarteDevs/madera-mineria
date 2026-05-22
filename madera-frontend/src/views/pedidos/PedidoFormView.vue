@@ -66,7 +66,7 @@
               {{ form.mina ? 'Seleccione tipo de madera estructural...' : 'Debe seleccionar una Sede/Mina primero' }}
             </option>
             <option v-for="madera in maderasDisponibles" :key="madera.id" :value="madera">
-              {{ madera.tipo }} (Para: {{ formatUso(madera.uso) }}) — Stock: {{ madera.stock }} {{ madera.unidad }} — S/. {{ madera.precio.toFixed(2) }}
+              {{ madera.tipo }} (Para: {{ formatUso(madera.uso) }}) — Stock: {{ madera.stockDisponible != null ? madera.stockDisponible : 0 }} {{ madera.unidad }} — S/. {{ madera.precioPorUnidad != null ? madera.precioPorUnidad.toFixed(2) : '0.00' }}
             </option>
           </select>
           <p v-if="!cargandoInventario && form.mina && maderasDisponibles.length === 0" class="text-xs text-rose-600 mt-1.5">
@@ -86,7 +86,7 @@
                 v-model.number="form.cantidadSolicitada"
                 type="number"
                 min="1"
-                :max="seleccionMadera.stock"
+                :max="seleccionMadera.stockDisponible"
                 required
                 class="input-field pr-16"
                 placeholder="Ej. 15"
@@ -96,7 +96,7 @@
               </span>
             </div>
             <span class="text-[10px] text-stone-400 block mt-1">
-              Máximo disponible: <b>{{ seleccionMadera.stock }} {{ form.unidad }}</b>
+              Máximo disponible: <b>{{ seleccionMadera.stockDisponible }} {{ form.unidad }}</b>
             </span>
           </div>
 
@@ -170,7 +170,7 @@ const successMsg = ref(null)
 
 const costoEstimado = computed(() => {
   if (!seleccionMadera.value || !form.cantidadSolicitada) return 0
-  return seleccionMadera.value.precio * form.cantidadSolicitada
+  return seleccionMadera.value.precioPorUnidad * form.cantidadSolicitada
 })
 
 async function alCambiarMina() {
@@ -185,7 +185,7 @@ async function alCambiarMina() {
   try {
     const { data } = await api.get(`/api/inventario/mina/${form.mina}`)
     // Filtrar solo las maderas con stock disponible
-    maderasDisponibles.value = (data || []).filter(m => m.stock > 0)
+    maderasDisponibles.value = (data || []).filter(m => m.stockDisponible > 0)
   } catch (err) {
     console.error('Error cargando maderas de mina:', err)
   } finally {
@@ -228,8 +228,8 @@ async function handleSubmit() {
     return
   }
 
-  if (form.cantidadSolicitada > seleccionMadera.value.stock) {
-    errorMsg.value = `No puede solicitar más de la cantidad disponible en stock (${seleccionMadera.value.stock}).`
+  if (form.cantidadSolicitada > seleccionMadera.value.stockDisponible) {
+    errorMsg.value = `No puede solicitar más de la cantidad disponible en stock (${seleccionMadera.value.stockDisponible}).`
     return
   }
 

@@ -100,7 +100,7 @@ const router = createRouter({
 })
 
 // Navigation Guards
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, from) => {
   const token = localStorage.getItem('token')
   const usuario = JSON.parse(localStorage.getItem('usuario') || 'null')
   const isAuthenticated = !!token
@@ -108,14 +108,14 @@ router.beforeEach((to, from, next) => {
   // Rutas protegidas
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (!isAuthenticated) {
-      return next('/login')
+      return '/login'
     }
     
     // Verificar rol si está definido en alguna parte de la jerarquía de rutas
     const requiredRoles = to.matched.find(record => record.meta.roles)?.meta.roles
     if (requiredRoles && usuario) {
       if (!requiredRoles.includes(usuario.rol)) {
-        return next('/dashboard') // Redirige al dashboard si no tiene rol autorizado
+        return '/dashboard' // Redirige al dashboard si no tiene rol autorizado
       }
     }
   }
@@ -123,11 +123,9 @@ router.beforeEach((to, from, next) => {
   // Rutas de invitado únicamente (Login, Register)
   if (to.matched.some(record => record.meta.guestOnly)) {
     if (isAuthenticated) {
-      return next('/dashboard')
+      return '/dashboard'
     }
   }
-
-  next()
 })
 
 export default router

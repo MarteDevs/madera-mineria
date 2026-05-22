@@ -95,10 +95,10 @@
               </td>
               <td class="table-cell text-stone-500 font-medium">{{ madera.mina }}</td>
               <td class="table-cell font-bold text-stone-850">
-                {{ madera.stock }} <span class="text-xs font-normal text-stone-400 capitalize">{{ madera.unidad }}</span>
+                {{ madera.stockDisponible != null ? madera.stockDisponible : 0 }} <span class="text-xs font-normal text-stone-400 capitalize">{{ madera.unidad }}</span>
               </td>
               <td class="table-cell font-semibold text-stone-700">
-                S/. {{ madera.precio.toFixed(2) }}
+                S/. {{ madera.precioPorUnidad != null ? madera.precioPorUnidad.toFixed(2) : '0.00' }}
               </td>
               <td class="table-cell">
                 <BadgeEstado :estado="madera.estado" />

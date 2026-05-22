@@ -269,7 +269,7 @@ onMounted(async () => {
     if (resInventario.status === 'fulfilled') {
       const list = resInventario.value.data || []
       // Sumar el stock total de madera
-      stats.value.stockTotal = list.reduce((sum, item) => sum + (item.stock || 0), 0)
+      stats.value.stockTotal = list.reduce((sum, item) => sum + (item.stockDisponible || 0), 0)
     }
 
     // 4. Procesar Notificaciones

@@ -7,6 +7,7 @@ import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -35,6 +36,12 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         // Dejar pasar rutas públicas sin validar token
         if (jwtUtil.esRutaPublica(path)) {
             log.debug("Ruta pública, sin validación: {}", path);
+            return chain.filter(exchange);
+        }
+
+        // Dejar pasar requests OPTIONS (CORS preflight)
+        if (HttpMethod.OPTIONS.equals(request.getMethod())) {
+            log.debug("Request OPTIONS, sin validación: {}", path);
             return chain.filter(exchange);
         }
 

@@ -153,8 +153,8 @@ async function handleSubmit() {
   errorMsg.value = null
   successMsg.value = null
 
-  if (form.precio <= 0 || form.stock < 0) {
-    errorMsg.value = 'El precio debe ser positivo y el stock no puede ser negativo.'
+  if (form.precio == null || form.precio <= 0 || form.stock == null || form.stock < 0) {
+    errorMsg.value = 'El precio debe ser mayor a 0 y el stock no puede estar vacío ni ser negativo.'
     loading.value = false
     return
   }
@@ -164,8 +164,8 @@ async function handleSubmit() {
       tipo: form.tipo.trim(),
       uso: form.uso,
       unidad: form.unidad,
-      precio: parseFloat(form.precio),
-      stock: parseInt(form.stock),
+      precioPorUnidad: parseFloat(form.precio),
+      stockDisponible: parseInt(form.stock),
       mina: form.mina,
       estado: form.stock > 0 ? 'DISPONIBLE' : 'AGOTADO'
     }
