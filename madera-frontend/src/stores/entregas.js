@@ -55,7 +55,8 @@ export const useEntregasStore = defineStore('entregas', () => {
     error.value = null
     try {
       const { data } = await api.put(
-        `/api/entregas/${id}/asignar-transportista?transportista=${transportista}&vehiculo=${vehiculo}`
+        `/api/entregas/${id}/asignar-transportista`,
+        { transportista, vehiculo }
       )
       actualizarEnLista(data)
       if (entregaActual.value && entregaActual.value.id === id) entregaActual.value = data
@@ -89,7 +90,8 @@ export const useEntregasStore = defineStore('entregas', () => {
     error.value = null
     try {
       const { data } = await api.put(
-        `/api/entregas/${id}/confirmar-recepcion?recibidoPor=${recibidoPor}&observaciones=${observaciones || ''}`
+        `/api/entregas/${id}/confirmar-recepcion`,
+        { recibidoPor, observaciones: observaciones || '', conformidad: true }
       )
       actualizarEnLista(data)
       if (entregaActual.value && entregaActual.value.id === id) entregaActual.value = data

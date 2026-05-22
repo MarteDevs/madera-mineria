@@ -64,6 +64,13 @@
         <span v-if="loading">Verificando Credenciales...</span>
         <span v-else>Iniciar Sesión</span>
       </button>
+
+      <!-- Register link -->
+      <div class="text-center mt-4">
+        <RouterLink to="/register" class="text-xs text-amber-600 hover:text-amber-700 font-medium">
+          ¿No tienes cuenta? Regístrate aquí
+        </RouterLink>
+      </div>
     </form>
   </div>
 </template>

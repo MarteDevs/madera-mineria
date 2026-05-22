@@ -49,9 +49,9 @@
           </div>
         </div>
 
-        <!-- Acciones especiales para Almacén -->
+        <!-- Acciones especiales para Almacén / Administrador -->
         <div
-          v-if="authStore.esAlmacen && pedido.estado === 'PENDIENTE'"
+          v-if="(authStore.esAlmacen || authStore.esAdmin) && pedido.estado === 'PENDIENTE'"
           class="bg-stone-50 rounded-xl p-4 border border-stone-150 flex items-center justify-between gap-4"
         >
           <div>

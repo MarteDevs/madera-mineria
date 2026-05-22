@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="mostrar && mensaje"
+    v-if="mostrar"
     :class="[
       'p-4 rounded-xl border flex items-start space-x-3 transition-all duration-300 animate-fade-in mb-4',
       tipoClases
@@ -11,7 +11,9 @@
     
     <div class="flex-1">
       <h4 class="text-sm font-semibold">{{ titulo || tipoTitulo }}</h4>
-      <p class="text-xs mt-0.5 opacity-90">{{ mensaje }}</p>
+      <p class="text-xs mt-0.5 opacity-90">
+        <slot>{{ mensaje }}</slot>
+      </p>
     </div>
 
     <!-- Close button -->
@@ -31,11 +33,12 @@ import { ref, computed } from 'vue'
 const props = defineProps({
   mensaje: {
     type: String,
-    required: true
+    required: false,
+    default: ''
   },
   tipo: {
     type: String,
-    default: 'error', // error, success, info, warning
+    default: 'error', // error, success, exito, warning, info
   },
   titulo: {
     type: String,
@@ -55,6 +58,7 @@ const tipoClases = computed(() => {
   const map = {
     error: 'bg-red-50 text-red-800 border-red-200',
     success: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+    exito: 'bg-emerald-50 text-emerald-800 border-emerald-200',
     warning: 'bg-amber-50 text-amber-800 border-amber-200',
     info: 'bg-blue-50 text-blue-800 border-blue-200'
   }
@@ -65,6 +69,7 @@ const tipoTitulo = computed(() => {
   const map = {
     error: 'Error',
     success: 'Operación Exitosa',
+    exito: 'Operación Exitosa',
     warning: 'Advertencia',
     info: 'Información'
   }
@@ -75,6 +80,7 @@ const icono = computed(() => {
   const map = {
     error: '❌',
     success: '✅',
+    exito: '✅',
     warning: '⚠️',
     info: 'ℹ️'
   }
