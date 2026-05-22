@@ -1,45 +1,46 @@
-import { defineStore } from 'pinia';
-import api from '@/services/api';
+import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
+import api from '@/services/api'
 
-export const useAuthStore = defineStore('auth', {
-  state: () => ({
-    user: JSON.parse(localStorage.getItem('user')) || null,
-    token: localStorage.getItem('token') || null,
-    loading: false,
-    error: null
-  }),
-  
-  getters: {
-    isAuthenticated: (state) => !!state.token,
-    userRole: (state) => state.user?.role || 'USER'
-  },
-  
-  actions: {
-    async login(credentials) {
-      this.loading = true;
-      this.error = null;
-      try {
-        const response = await api.post('/api/auth/login', credentials);
-        this.token = response.data.token;
-        this.user = response.data.user;
-        
-        localStorage.setItem('token', this.token);
-        localStorage.setItem('user', JSON.stringify(this.user));
-        
-        return true;
-      } catch (err) {
-        this.error = err.response?.data?.message || 'Error al iniciar sesión';
-        return false;
-      } finally {
-        this.loading = false;
-      }
-    },
-    
-    logout() {
-      this.user = null;
-      this.token = null;
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+export const useAuthStore = defineStore('auth', () => {
+  const token = ref(localStorage.getItem('token') || null)
+  const usuario = ref(JSON.parse(localStorage.getItem('usuario') || 'null'))
+
+  const isAuthenticated = computed(() => !!token.value)
+  const rol = computed(() => usuario.value?.rol || '')
+  const nombreCompleto = computed(() =>
+    usuario.value ? `${usuario.value.nombre}` : '')
+
+  // Helpers de rol
+  const esAdmin = computed(() => rol.value === 'ROLE_ADMIN')
+  const esAlmacen = computed(() => rol.value === 'ROLE_ALMACEN')
+  const esCompras = computed(() => rol.value === 'ROLE_COMPRAS')
+  const esTransporte = computed(() => rol.value === 'ROLE_TRANSPORTE')
+
+  async function login(email, password) {
+    const { data } = await api.post('/api/auth/login', { email, password })
+    token.value = data.token
+    usuario.value = {
+      email: data.email,
+      nombre: data.nombre,
+      rol: data.rol
     }
+    localStorage.setItem('token', data.token)
+    localStorage.setItem('usuario', JSON.stringify(usuario.value))
+    return data
   }
-});
+
+  function logout() {
+    token.value = null
+    usuario.value = null
+    localStorage.removeItem('token')
+    localStorage.removeItem('usuario')
+  }
+
+  return {
+    token, usuario, isAuthenticated,
+    rol, nombreCompleto,
+    esAdmin, esAlmacen, esCompras, esTransporte,
+    login, logout
+  }
+})

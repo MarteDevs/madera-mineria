@@ -140,6 +140,16 @@ services:
     networks:
       - madera-network
 
+  madera-frontend:
+    build: ./madera-frontend
+    container_name: madera-frontend
+    depends_on:
+      - api-gateway
+    ports:
+      - "80:80"
+    networks:
+      - madera-network
+
   # ── OBSERVABILIDAD ───────────────────────────────────────────────────────────
 
   prometheus:
