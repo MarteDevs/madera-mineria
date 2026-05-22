@@ -115,13 +115,31 @@ public class NotificacionServiceImpl implements NotificacionService {
                     "Pedido #%d rechazado. Notificar a la mina %s.",
                     evento.getPedidoId(),
                     evento.getMina());
+            case "PREPARANDO" -> String.format(
+                    "Pedido #%d en preparación: transporte y chofer asignados para despacho a %s.",
+                    evento.getPedidoId(),
+                    evento.getMina());
+            case "EN_RUTA" -> String.format(
+                    "Pedido #%d en ruta: %d unidades de %s en tránsito hacia la mina %s.",
+                    evento.getPedidoId(),
+                    evento.getCantidad(),
+                    evento.getTipoMadera(),
+                    evento.getMina());
+            case "ENTREGADO" -> String.format(
+                    "Pedido #%d entregado: recepción conforme confirmada en la mina %s.",
+                    evento.getPedidoId(),
+                    evento.getMina());
+            case "FALLIDO" -> String.format(
+                    "Despacho fallido para el pedido #%d a la mina %s.",
+                    evento.getPedidoId(),
+                    evento.getMina());
             default -> String.format("Evento en pedido #%d: %s", evento.getPedidoId(), evento.getEstado());
         };
     }
 
     private String determinarDestinatario(String tipoEvento) {
         return switch (normalizarValor(tipoEvento)) {
-            case "CREADO", "APROBADO" -> DESTINATARIO_ALMACEN;
+            case "CREADO", "APROBADO", "PREPARANDO", "EN_RUTA", "ENTREGADO" -> DESTINATARIO_ALMACEN;
             case "RECHAZADO" -> "COMPRAS";
             default -> "ADMIN";
         };

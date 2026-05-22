@@ -13,7 +13,7 @@ public class RabbitMQConfig {
 
     public static final String EXCHANGE    = "madera.exchange";
     public static final String QUEUE       = "cola.pedidos.creados";
-    public static final String ROUTING_KEY = "pedido.creado";
+    public static final String ROUTING_KEY = "pedido.*";
 
     @Bean
     public TopicExchange maderaExchange() {

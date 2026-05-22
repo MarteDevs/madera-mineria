@@ -18,6 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.madera.entrega.config.RabbitMQConfig;
+import com.madera.entrega.dto.PedidoEvent;
+import org.springframework.amqp.core.AmqpTemplate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -29,6 +32,7 @@ public class EntregaServiceImpl implements EntregaService {
     private final EntregaRepository entregaRepository;
     private final HistorialEntregaRepository historialEntregaRepository;
     private final PedidosClient pedidosClient;
+    private final AmqpTemplate amqpTemplate;
 
     @Override
     @Transactional
@@ -76,6 +80,22 @@ public class EntregaServiceImpl implements EntregaService {
 
         entrega = entregaRepository.save(entrega);
         registrarHistorial(entrega, estadoAnterior, EstadoEntrega.PREPARANDO, request.getTransportista(), "Transportista y vehiculo asignados");
+
+        // Publicar evento de estado en RabbitMQ para notificaciones
+        PedidoEvent evento = PedidoEvent.builder()
+            .pedidoId(entrega.getPedidoId())
+            .tipoMadera(entrega.getTipoMadera())
+            .cantidad(entrega.getCantidad())
+            .mina(entrega.getMinaDestino())
+            .estado("PREPARANDO")
+            .fecha(LocalDateTime.now())
+            .build();
+        amqpTemplate.convertAndSend(
+            RabbitMQConfig.EXCHANGE,
+            "pedido.preparando",
+            evento
+        );
+
         return mapToResponse(entrega);
     }
 
@@ -95,6 +115,22 @@ public class EntregaServiceImpl implements EntregaService {
 
         entrega = entregaRepository.save(entrega);
         registrarHistorial(entrega, estadoAnterior, EstadoEntrega.EN_RUTA, entrega.getTransportista(), "Salida del almacen hacia la mina");
+
+        // Publicar evento de estado en RabbitMQ para notificaciones
+        PedidoEvent evento = PedidoEvent.builder()
+            .pedidoId(entrega.getPedidoId())
+            .tipoMadera(entrega.getTipoMadera())
+            .cantidad(entrega.getCantidad())
+            .mina(entrega.getMinaDestino())
+            .estado("EN_RUTA")
+            .fecha(LocalDateTime.now())
+            .build();
+        amqpTemplate.convertAndSend(
+            RabbitMQConfig.EXCHANGE,
+            "pedido.en_ruta",
+            evento
+        );
+
         return mapToResponse(entrega);
     }
 
@@ -121,6 +157,22 @@ public class EntregaServiceImpl implements EntregaService {
         registrarHistorial(entrega, estadoAnterior, EstadoEntrega.ENTREGADO, request.getRecibidoPor(), "Recepcion confirmada en mina");
 
         pedidosClient.actualizarEstadoPedido(entrega.getPedidoId(), "ENTREGADO");
+
+        // Publicar evento de estado en RabbitMQ para notificaciones
+        PedidoEvent evento = PedidoEvent.builder()
+            .pedidoId(entrega.getPedidoId())
+            .tipoMadera(entrega.getTipoMadera())
+            .cantidad(entrega.getCantidad())
+            .mina(entrega.getMinaDestino())
+            .estado("ENTREGADO")
+            .fecha(LocalDateTime.now())
+            .build();
+        amqpTemplate.convertAndSend(
+            RabbitMQConfig.EXCHANGE,
+            "pedido.entregado",
+            evento
+        );
+
         return mapToResponse(entrega);
     }
 
@@ -146,6 +198,22 @@ public class EntregaServiceImpl implements EntregaService {
 
         entrega = entregaRepository.save(entrega);
         registrarHistorial(entrega, estadoAnterior, EstadoEntrega.FALLIDO, "admin", motivo);
+
+        // Publicar evento de estado en RabbitMQ para notificaciones
+        PedidoEvent evento = PedidoEvent.builder()
+            .pedidoId(entrega.getPedidoId())
+            .tipoMadera(entrega.getTipoMadera())
+            .cantidad(entrega.getCantidad())
+            .mina(entrega.getMinaDestino())
+            .estado("FALLIDO")
+            .fecha(LocalDateTime.now())
+            .build();
+        amqpTemplate.convertAndSend(
+            RabbitMQConfig.EXCHANGE,
+            "pedido.fallido",
+            evento
+        );
+
         return mapToResponse(entrega);
     }
 

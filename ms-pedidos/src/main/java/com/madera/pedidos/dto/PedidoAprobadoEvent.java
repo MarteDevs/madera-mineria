@@ -16,5 +16,17 @@ public class PedidoAprobadoEvent {
     private String unidad;
     private String mina;
     private String solicitadoPor;
+    private String estado;
     private LocalDateTime fecha;
+
+    public PedidoAprobadoEvent(Long pedidoId, String tipoMadera, Integer cantidad, String unidad, String mina, String solicitadoPor, LocalDateTime fecha) {
+        this.pedidoId = pedidoId;
+        this.tipoMadera = tipoMadera;
+        this.cantidad = cantidad;
+        this.unidad = unidad;
+        this.mina = mina;
+        this.solicitadoPor = solicitadoPor;
+        this.estado = "APROBADO";
+        this.fecha = fecha;
+    }
 }

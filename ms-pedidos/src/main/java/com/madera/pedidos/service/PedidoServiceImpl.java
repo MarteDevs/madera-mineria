@@ -71,7 +71,7 @@ public class PedidoServiceImpl implements PedidoService {
         );
         amqpTemplate.convertAndSend(
             RabbitMQConfig.EXCHANGE,
-            RabbitMQConfig.ROUTING_KEY,
+            "pedido.creado",
             evento
         );
 
@@ -152,6 +152,21 @@ public class PedidoServiceImpl implements PedidoService {
         pedido.setEstado(EstadoPedido.RECHAZADO);
         pedido.setMotivoRechazo(motivo);
         pedido = pedidoRepo.save(pedido);
+
+        // Publicar evento en RabbitMQ para notificaciones u otros servicios
+        PedidoEvent evento = new PedidoEvent(
+            pedido.getId(),
+            pedido.getTipoMadera(),
+            pedido.getCantidadSolicitada(),
+            pedido.getMina(),
+            "RECHAZADO",
+            LocalDateTime.now()
+        );
+        amqpTemplate.convertAndSend(
+            RabbitMQConfig.EXCHANGE,
+            "pedido.rechazado",
+            evento
+        );
 
         return mapToResponse(pedido);
     }

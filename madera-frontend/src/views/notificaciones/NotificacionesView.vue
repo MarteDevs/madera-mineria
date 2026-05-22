@@ -201,7 +201,9 @@ function obtenerIcono(tipo) {
   if (t.includes('CREACION') || t.includes('CREAR') || t.includes('CREADO')) return '📋'
   if (t.includes('APROB') || t.includes('APROBAR') || t.includes('APROBADO')) return '✅'
   if (t.includes('RECHAZ') || t.includes('RECHAZADO')) return '❌'
-  if (t.includes('RUTA') || t.includes('LOGISTICA') || t.includes('DESPACHO')) return '🚚'
+  if (t.includes('PREPAR') || t.includes('PREPARANDO')) return '📦'
+  if (t.includes('RUTA') || t.includes('LOGISTICA') || t.includes('DESPACHO') || t.includes('EN_RUTA')) return '🚚'
+  if (t.includes('ENTREG') || t.includes('RECEPCION') || t.includes('ENTREGADO') || t.includes('RECEPCIONADO')) return '🤝'
   if (t.includes('STOCK') || t.includes('MINIMO') || t.includes('INVENTARIO')) return '⚠️'
   return '🔔'
 }
@@ -212,7 +214,9 @@ function obtenerClaseIcono(tipo) {
   if (t.includes('CREACION') || t.includes('CREAR') || t.includes('CREADO')) return 'bg-amber-100 text-amber-700'
   if (t.includes('APROB') || t.includes('APROBAR') || t.includes('APROBADO')) return 'bg-emerald-100 text-emerald-700'
   if (t.includes('RECHAZ') || t.includes('RECHAZADO')) return 'bg-red-100 text-red-700'
-  if (t.includes('RUTA') || t.includes('LOGISTICA') || t.includes('DESPACHO')) return 'bg-indigo-100 text-indigo-700'
+  if (t.includes('PREPAR') || t.includes('PREPARANDO')) return 'bg-orange-100 text-orange-700'
+  if (t.includes('RUTA') || t.includes('LOGISTICA') || t.includes('DESPACHO') || t.includes('EN_RUTA')) return 'bg-indigo-100 text-indigo-700'
+  if (t.includes('ENTREG') || t.includes('RECEPCION') || t.includes('ENTREGADO') || t.includes('RECEPCIONADO')) return 'bg-emerald-100 text-emerald-700'
   if (t.includes('STOCK') || t.includes('MINIMO') || t.includes('INVENTARIO')) return 'bg-red-50 text-red-650 border border-red-150'
   return 'bg-stone-100 text-stone-700'
 }
