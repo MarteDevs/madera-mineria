@@ -141,6 +141,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import api from '@/services/api'
+import { useDialogStore } from '@/stores/dialog'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import AlertMessage from '@/components/common/AlertMessage.vue'
 
@@ -149,6 +150,7 @@ const loading = ref(true)
 const error = ref(null)
 const successMsg = ref(null)
 const togglingId = ref(null)
+const dialogStore = useDialogStore()
 
 const filtros = reactive({
   busqueda: '',
@@ -190,9 +192,14 @@ const usuariosFiltrados = computed(() => {
 })
 
 async function confirmarDesactivacion(usuario) {
-  if (!confirm(`¿Está completamente seguro de desactivar la cuenta del usuario "${usuario.nombre} ${usuario.apellido || ''}"? Esta acción no se puede deshacer en esta versión.`)) {
-    return
-  }
+  const confirmado = await dialogStore.confirm({
+    titulo: 'Desactivar Usuario',
+    mensaje: `¿Está completamente seguro de desactivar la cuenta del usuario "${usuario.nombre} ${usuario.apellido || ''}"? Esta acción no se puede deshacer en esta versión.`,
+    confirmLabel: 'Sí, Desactivar',
+    cancelLabel: 'Cancelar',
+    tipoEsPeligroso: true
+  })
+  if (!confirmado) return
   
   togglingId.value = usuario.id
   error.value = null

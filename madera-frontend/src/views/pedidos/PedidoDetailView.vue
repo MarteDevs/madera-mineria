@@ -138,6 +138,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { usePedidosStore } from '@/stores/pedidos'
+import { useDialogStore } from '@/stores/dialog'
 import BadgeEstado from '@/components/common/BadgeEstado.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import AlertMessage from '@/components/common/AlertMessage.vue'
@@ -149,6 +150,7 @@ const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
 const pedidosStore = usePedidosStore()
+const dialogStore = useDialogStore()
 
 const pedidoId = route.params.id
 const pedido = ref(null)
@@ -270,13 +272,24 @@ async function cargarDetalle() {
 onMounted(cargarDetalle)
 
 async function aprobarPedido() {
-  if (!confirm('¿Desea aprobar este pedido?')) return
+  const confirmado = await dialogStore.confirm({
+    titulo: 'Confirmar Aprobación',
+    mensaje: '¿Desea aprobar este pedido?',
+    confirmLabel: 'Sí, Aprobar',
+    cancelLabel: 'Cancelar'
+  })
+  if (!confirmado) return
+
   loading.value = true
   try {
     await pedidosStore.aprobarPedido(pedidoId, authStore.usuario.email)
     await cargarDetalle()
   } catch (err) {
-    alert(err.response?.data?.mensaje || 'Error aprobando pedido.')
+    dialogStore.alert({
+      titulo: 'Error de Aprobación',
+      mensaje: err.response?.data?.mensaje || 'Error aprobando pedido.',
+      tipo: 'error'
+    })
     loading.value = false
   }
 }
@@ -288,7 +301,11 @@ function abrirRechazo() {
 
 async function confirmarRechazo() {
   if (!rechazoModal.value.motivo.trim()) {
-    alert('Motivo requerido.')
+    dialogStore.alert({
+      titulo: 'Campo Requerido',
+      mensaje: 'Motivo requerido.',
+      tipo: 'warning'
+    })
     return
   }
   rechazoModal.value.loading = true
@@ -297,7 +314,11 @@ async function confirmarRechazo() {
     rechazoModal.value.mostrar = false
     await cargarDetalle()
   } catch (err) {
-    alert(err.response?.data?.mensaje || 'Error rechazando pedido.')
+    dialogStore.alert({
+      titulo: 'Error de Rechazo',
+      mensaje: err.response?.data?.mensaje || 'Error rechazando pedido.',
+      tipo: 'error'
+    })
   } finally {
     rechazoModal.value.loading = false
   }

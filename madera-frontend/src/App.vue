@@ -1,9 +1,11 @@
 <script setup>
 import { RouterView } from 'vue-router'
+import GlobalDialog from '@/components/common/GlobalDialog.vue'
 </script>
 
 <template>
   <RouterView />
+  <GlobalDialog />
 </template>
 
 <style>

@@ -215,6 +215,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useInventarioStore } from '@/stores/inventario'
+import { useDialogStore } from '@/stores/dialog'
 import BadgeEstado from '@/components/common/BadgeEstado.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import AlertMessage from '@/components/common/AlertMessage.vue'
@@ -222,6 +223,7 @@ import ConfirmModal from '@/components/common/ConfirmModal.vue'
 
 const authStore = useAuthStore()
 const inventarioStore = useInventarioStore()
+const dialogStore = useDialogStore()
 
 const filtros = reactive({
   buscar: '',
@@ -286,11 +288,19 @@ function cerrarEntradaModal() {
 
 async function confirmarEntrada() {
   if (!entradaModal.cantidad || entradaModal.cantidad <= 0) {
-    alert('Ingrese una cantidad válida mayor a 0.')
+    dialogStore.alert({
+      titulo: 'Cantidad Inválida',
+      mensaje: 'Ingrese una cantidad válida mayor a 0.',
+      tipo: 'warning'
+    })
     return
   }
   if (!entradaModal.motivo.trim()) {
-    alert('Por favor ingrese un motivo.')
+    dialogStore.alert({
+      titulo: 'Motivo Requerido',
+      mensaje: 'Por favor ingrese un motivo.',
+      tipo: 'warning'
+    })
     return
   }
 
@@ -303,7 +313,11 @@ async function confirmarEntrada() {
     })
     cerrarEntradaModal()
   } catch (err) {
-    alert(err.response?.data?.mensaje || 'Error registrando la entrada.')
+    dialogStore.alert({
+      titulo: 'Error',
+      mensaje: err.response?.data?.mensaje || 'Error registrando la entrada.',
+      tipo: 'error'
+    })
   } finally {
     entradaModal.loading = false
   }

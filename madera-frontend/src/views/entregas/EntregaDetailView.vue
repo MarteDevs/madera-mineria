@@ -299,6 +299,7 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useEntregasStore } from '@/stores/entregas'
+import { useDialogStore } from '@/stores/dialog'
 import BadgeEstado from '@/components/common/BadgeEstado.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import AlertMessage from '@/components/common/AlertMessage.vue'
@@ -306,6 +307,7 @@ import AlertMessage from '@/components/common/AlertMessage.vue'
 const route = useRoute()
 const authStore = useAuthStore()
 const entregasStore = useEntregasStore()
+const dialogStore = useDialogStore()
 
 const entregaId = route.params.id
 const entrega = ref(null)
@@ -353,7 +355,11 @@ onMounted(cargarDetalle)
 
 async function handleAsignar() {
   if (!formAsignacion.transportista.trim() || !formAsignacion.vehiculo.trim()) {
-    alert('Todos los campos son obligatorios.')
+    dialogStore.alert({
+      titulo: 'Campos Obligatorios',
+      mensaje: 'Todos los campos son obligatorios.',
+      tipo: 'warning'
+    })
     return
   }
   submitting.value = true
@@ -375,7 +381,14 @@ async function handleAsignar() {
 }
 
 async function handleDespachar() {
-  if (!confirm('¿Confirmar salida del vehículo e inicio del trayecto hacia la mina?')) return
+  const confirmado = await dialogStore.confirm({
+    titulo: 'Iniciar Ruta',
+    mensaje: '¿Confirmar salida del vehículo e inicio del trayecto hacia la mina?',
+    confirmLabel: 'Sí, Despachar',
+    cancelLabel: 'Cancelar'
+  })
+  if (!confirmado) return
+
   submitting.value = true
   error.value = null
   successMsg.value = null
@@ -393,7 +406,11 @@ async function handleDespachar() {
 
 async function handleConfirmar() {
   if (!formConfirmacion.recibidoPor.trim()) {
-    alert('Debe indicar quién recibe el cargamento en la mina.')
+    dialogStore.alert({
+      titulo: 'Campo Requerido',
+      mensaje: 'Debe indicar quién recibe el cargamento en la mina.',
+      tipo: 'warning'
+    })
     return
   }
   submitting.value = true

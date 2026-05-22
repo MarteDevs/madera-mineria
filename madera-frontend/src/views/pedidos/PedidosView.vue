@@ -186,6 +186,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { usePedidosStore } from '@/stores/pedidos'
+import { useDialogStore } from '@/stores/dialog'
 import BadgeEstado from '@/components/common/BadgeEstado.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import AlertMessage from '@/components/common/AlertMessage.vue'
@@ -193,6 +194,7 @@ import ConfirmModal from '@/components/common/ConfirmModal.vue'
 
 const authStore = useAuthStore()
 const pedidosStore = usePedidosStore()
+const dialogStore = useDialogStore()
 
 const filtros = reactive({
   mina: '',
@@ -250,7 +252,11 @@ async function ejecutarAprobacion() {
     await pedidosStore.aprobarPedido(aprobacionModal.pedido.id, authStore.usuario.email)
     aprobacionModal.mostrar = false
   } catch (err) {
-    alert(err.response?.data?.mensaje || 'Error al aprobar el pedido.')
+    dialogStore.alert({
+      titulo: 'Error al Aprobar',
+      mensaje: err.response?.data?.mensaje || 'Error al aprobar el pedido.',
+      tipo: 'error'
+    })
   } finally {
     aprobacionModal.loading = false
   }
@@ -272,7 +278,11 @@ function abrirRechazoModal(pedido) {
 
 async function ejecutarRechazo() {
   if (!rechazoModal.motivo.trim()) {
-    alert('Por favor especifique un motivo.')
+    dialogStore.alert({
+      titulo: 'Campo Requerido',
+      mensaje: 'Por favor especifique un motivo.',
+      tipo: 'warning'
+    })
     return
   }
 
@@ -281,7 +291,11 @@ async function ejecutarRechazo() {
     await pedidosStore.rechazarPedido(rechazoModal.pedido.id, rechazoModal.motivo)
     rechazoModal.mostrar = false
   } catch (err) {
-    alert(err.response?.data?.mensaje || 'Error al rechazar el pedido.')
+    dialogStore.alert({
+      titulo: 'Error al Rechazar',
+      mensaje: err.response?.data?.mensaje || 'Error al rechazar el pedido.',
+      tipo: 'error'
+    })
   } finally {
     rechazoModal.loading = false
   }

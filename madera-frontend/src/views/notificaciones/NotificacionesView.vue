@@ -141,10 +141,12 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useNotificacionesStore } from '@/stores/notificaciones'
+import { useDialogStore } from '@/stores/dialog'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
 import AlertMessage from '@/components/common/AlertMessage.vue'
 
 const notificacionesStore = useNotificacionesStore()
+const dialogStore = useDialogStore()
 const filtroEstado = ref('PENDIENTES')
 const loadingId = ref(null)
 const bulkLoading = ref(false)
@@ -173,7 +175,11 @@ async function marcarComoLeida(id) {
   try {
     await notificacionesStore.marcarComoLeida(id)
   } catch (err) {
-    alert(err.message || 'Error al marcar como leída.')
+    dialogStore.alert({
+      titulo: 'Error',
+      mensaje: err.message || 'Error al marcar como leída.',
+      tipo: 'error'
+    })
   } finally {
     loadingId.value = null
   }
@@ -182,7 +188,14 @@ async function marcarComoLeida(id) {
 async function marcarTodasComoLeidas() {
   const pendientesList = notificacionesPendientes.value
   if (pendientesList.length === 0) return
-  if (!confirm('¿Desea marcar todas las notificaciones pendientes como leídas?')) return
+  const confirmado = await dialogStore.confirm({
+    titulo: 'Marcar Todas como Leídas',
+    mensaje: '¿Desea marcar todas las notificaciones pendientes como leídas?',
+    confirmLabel: 'Sí, Marcar Todas',
+    cancelLabel: 'Cancelar'
+  })
+  if (!confirmado) return
+
   bulkLoading.value = true
   try {
     for (const notif of pendientesList) {
