@@ -67,7 +67,7 @@
         v-for="notif in notificacionesFiltradas"
         :key="notif.id"
         class="card bg-white p-5 border transition-all duration-200"
-        :class="notif.estado === 'LEIDA' ? 'opacity-70 border-stone-150' : 'border-amber-200 bg-amber-50/10 shadow-sm'"
+        :class="notif.estado === 'LEIDA' ? 'opacity-70 border-stone-200' : 'border-amber-200 bg-amber-50/10 shadow-sm'"
       >
         <div class="flex items-start justify-between gap-4">
           <div class="flex items-start gap-3.5">
@@ -104,7 +104,7 @@
                 <RouterLink
                   v-if="notif.pedidoId"
                   :to="`/pedidos/${notif.pedidoId}`"
-                  class="text-amber-650 hover:underline font-bold text-[11px] inline-flex items-center gap-0.5"
+                  class="text-amber-700 hover:underline font-bold text-[11px] inline-flex items-center gap-0.5"
                 >
                   Pedido #{{ notif.pedidoId }} ➔
                 </RouterLink>
@@ -117,7 +117,7 @@
             <button
               @click="marcarComoLeida(notif.id)"
               :disabled="loadingId === notif.id"
-              class="text-xs border border-stone-200 hover:border-amber-450 hover:bg-amber-50 hover:text-amber-700 px-3 py-1.5 rounded-lg font-semibold transition-all bg-white"
+              class="text-xs border border-stone-200 hover:border-amber-400 hover:bg-amber-50 hover:text-amber-700 px-3 py-1.5 rounded-lg font-semibold transition-all bg-white"
             >
               <span v-if="loadingId === notif.id">Leyendo...</span>
               <span v-else>Marcar leída</span>
@@ -127,7 +127,7 @@
       </div>
 
       <!-- Estado vacío -->
-      <div v-if="notificacionesFiltradas.length === 0" class="card bg-white p-12 text-center border border-stone-150">
+      <div v-if="notificacionesFiltradas.length === 0" class="card bg-white p-12 text-center border border-stone-200">
         <p class="text-3xl mb-3">🔔</p>
         <h3 class="text-sm font-bold text-stone-800">No hay notificaciones</h3>
         <p class="text-stone-400 text-xs mt-1">
@@ -230,7 +230,7 @@ function obtenerClaseIcono(tipo) {
   if (t.includes('PREPAR') || t.includes('PREPARANDO')) return 'bg-orange-100 text-orange-700'
   if (t.includes('RUTA') || t.includes('LOGISTICA') || t.includes('DESPACHO') || t.includes('EN_RUTA')) return 'bg-indigo-100 text-indigo-700'
   if (t.includes('ENTREG') || t.includes('RECEPCION') || t.includes('ENTREGADO') || t.includes('RECEPCIONADO')) return 'bg-emerald-100 text-emerald-700'
-  if (t.includes('STOCK') || t.includes('MINIMO') || t.includes('INVENTARIO')) return 'bg-red-50 text-red-650 border border-red-150'
+  if (t.includes('STOCK') || t.includes('MINIMO') || t.includes('INVENTARIO')) return 'bg-red-50 text-red-700 border border-red-200'
   return 'bg-stone-100 text-stone-700'
 }
 

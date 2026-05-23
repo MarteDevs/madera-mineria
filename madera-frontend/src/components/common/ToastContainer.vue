@@ -29,19 +29,19 @@ const toastStore = useToastStore()
 
 const estilos = {
   success: {
-    contenedor: 'bg-emerald-50/90 border-emerald-150 text-emerald-800',
+    contenedor: 'bg-emerald-50/95 border-emerald-200 text-emerald-900',
     icono: '✅'
   },
   error: {
-    contenedor: 'bg-red-50/90 border-red-150 text-red-800',
+    contenedor: 'bg-red-50/95 border-red-200 text-red-900',
     icono: '❌'
   },
   warning: {
-    contenedor: 'bg-amber-50/90 border-amber-150 text-amber-800',
+    contenedor: 'bg-amber-50/95 border-amber-200 text-amber-900',
     icono: '⚠️'
   },
   info: {
-    contenedor: 'bg-stone-805/95 border-stone-750 text-stone-100 shadow-stone-900/30',
+    contenedor: 'bg-stone-900/95 border-stone-800 text-stone-100 shadow-stone-950/40',
     icono: '🔔'
   }
 }
