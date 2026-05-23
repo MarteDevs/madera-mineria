@@ -93,7 +93,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useNotificacionesStore } from '@/stores/notificaciones'
@@ -115,10 +115,18 @@ const rolLegible = computed(() => {
 onMounted(() => {
   if (authStore.esAdmin || authStore.esAlmacen) {
     notifStore.fetchPendientesCount()
+    
+    // Iniciar conexión push en tiempo real usando Server-Sent Events (SSE)
+    notifStore.conectarSSE()
   }
 })
 
+onUnmounted(() => {
+  notifStore.desconectarSSE()
+})
+
 function handleLogout() {
+  notifStore.desconectarSSE()
   authStore.logout()
   router.push('/login')
 }

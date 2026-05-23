@@ -24,6 +24,7 @@ public class NotificacionServiceImpl implements NotificacionService {
     private static final String DESTINATARIO_ALMACEN = "ALMACEN";
 
     private final NotificacionRepository notificacionRepository;
+    private final SseService sseService;
 
     @Override
     @Transactional
@@ -41,7 +42,12 @@ public class NotificacionServiceImpl implements NotificacionService {
         notificacion.setMensaje(generarMensaje(evento));
         notificacion.setDestinatario(determinarDestinatario(evento.getEstado()));
 
-        notificacionRepository.save(notificacion);
+        Notificacion guardada = notificacionRepository.save(notificacion);
+        try {
+            sseService.enviarNotificacion(mapToResponse(guardada));
+        } catch (Exception e) {
+            log.error("Error al enviar notificación por SSE: {}", e.getMessage(), e);
+        }
     }
 
     @Override

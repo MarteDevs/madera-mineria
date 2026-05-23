@@ -45,18 +45,21 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
             return chain.filter(exchange);
         }
 
-        // Verificar que existe el header Authorization
-        String authHeader = request.getHeaders()
-            .getFirst(HttpHeaders.AUTHORIZATION);
+        // Verificar que existe el header Authorization o el query parameter token (para EventSource/SSE)
+        String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+        String token = null;
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            log.warn("Request sin token: {}", path);
-            return respuestaNoAutorizado(exchange,
-                "Token requerido. Incluir: Authorization: Bearer <token>");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            token = authHeader.substring(7);
+        } else {
+            token = request.getQueryParams().getFirst("token");
         }
 
-        // Extraer y validar el token
-        String token = authHeader.substring(7);
+        if (token == null || token.isBlank()) {
+            log.warn("Request sin token: {}", path);
+            return respuestaNoAutorizado(exchange,
+                "Token requerido. Incluir en header Authorization o query parameter token");
+        }
 
         if (!jwtUtil.esTokenValido(token)) {
             log.warn("Token inválido o expirado para ruta: {}", path);
