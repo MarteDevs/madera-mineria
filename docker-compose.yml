@@ -34,16 +34,32 @@ services:
       timeout: 5s
       retries: 5
 
+  eureka-server:
+    build: ./eureka-server
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+      - madera-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8761/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   ms-auth:
     build: ./ms-auth
     container_name: ms-auth
     depends_on:
       postgres-db:
         condition: service_healthy
+      eureka-server:
+        condition: service_healthy
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/auth_db
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=marte
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     ports:
       - "8085:8085"
     networks:
@@ -55,10 +71,13 @@ services:
     depends_on:
       postgres-db:
         condition: service_healthy
+      eureka-server:
+        condition: service_healthy
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/inventario_db
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=marte
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     ports:
       - "8082:8082"
     networks:
@@ -72,12 +91,14 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      eureka-server:
+        condition: service_healthy
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/pedidos_db
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=marte
       - SPRING_RABBITMQ_HOST=rabbitmq
-      - FEIGN_CLIENT_CONFIG_MS_INVENTARIO_URL=http://ms-inventario:8082
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     ports:
       - "8083:8083"
     networks:
@@ -91,11 +112,14 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      eureka-server:
+        condition: service_healthy
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/notificaciones_db
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=marte
       - SPRING_RABBITMQ_HOST=rabbitmq
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     ports:
       - "8084:8084"
     networks:
@@ -109,12 +133,14 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
+      eureka-server:
+        condition: service_healthy
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/entrega_db
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=marte
       - SPRING_RABBITMQ_HOST=rabbitmq
-      - FEIGN_CLIENT_CONFIG_MS_PEDIDOS_URL=http://ms-pedidos:8083
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     ports:
       - "8086:8086"
     networks:
@@ -124,17 +150,20 @@ services:
     build: ./api-gateway
     container_name: api-gateway
     depends_on:
-      - ms-auth
-      - ms-inventario
-      - ms-pedidos
-      - ms-notificaciones
-      - ms-entrega
+      eureka-server:
+        condition: service_healthy
+      ms-auth:
+        condition: service_started
+      ms-inventario:
+        condition: service_started
+      ms-pedidos:
+        condition: service_started
+      ms-notificaciones:
+        condition: service_started
+      ms-entrega:
+        condition: service_started
     environment:
-      - MS_AUTH_URI=http://ms-auth:8085
-      - MS_INVENTARIO_URI=http://ms-inventario:8082
-      - MS_PEDIDOS_URI=http://ms-pedidos:8083
-      - MS_NOTIFICACIONES_URI=http://ms-notificaciones:8084
-      - MS_ENTREGA_URI=http://ms-entrega:8086
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     ports:
       - "8080:8080"
     networks:

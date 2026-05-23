@@ -88,6 +88,12 @@ const router = createRouter({
           name: 'usuarios',
           component: () => import('@/views/usuarios/UsuariosView.vue'),
           meta: { roles: ['ROLE_ADMIN'] }
+        },
+        {
+          path: 'usuarios/nuevo',
+          name: 'usuarios-nuevo',
+          component: () => import('@/views/usuarios/UsuarioFormView.vue'),
+          meta: { roles: ['ROLE_ADMIN'] }
         }
       ]
     },

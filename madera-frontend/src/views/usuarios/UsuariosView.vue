@@ -8,7 +8,7 @@
       </div>
       <div>
         <RouterLink
-          to="/register"
+          to="/usuarios/nuevo"
           class="btn-primary text-xs font-bold flex items-center gap-1.5 bg-stone-900 hover:bg-stone-850 shadow-sm transition-all"
         >
           ➕ Registrar Nuevo Personal

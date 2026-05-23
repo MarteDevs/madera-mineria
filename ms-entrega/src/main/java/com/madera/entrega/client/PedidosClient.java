@@ -6,8 +6,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(
-    name = "ms-pedidos",
-    url = "${feign.client.config.ms-pedidos.url:http://localhost:8083}"
+    name = "ms-pedidos"
 )
 public interface PedidosClient {
 
