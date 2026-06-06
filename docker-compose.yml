@@ -146,6 +146,27 @@ services:
     networks:
       - madera-network
 
+  ms-proveedores:
+    build: ./ms-proveedores
+    container_name: ms-proveedores
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/proveedores_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=marte
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    ports:
+      - "8087:8087"
+    networks:
+      - madera-network
+
   api-gateway:
     build: ./api-gateway
     container_name: api-gateway
@@ -161,6 +182,8 @@ services:
       ms-notificaciones:
         condition: service_started
       ms-entrega:
+        condition: service_started
+      ms-proveedores:
         condition: service_started
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/

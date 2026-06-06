@@ -36,3 +36,9 @@ scrape_configs:
     metrics_path: '/actuator/prometheus'
     static_configs:
       - targets: ['api-gateway:8080']
+
+  - job_name: 'ms-proveedores'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['ms-proveedores:8087']
+

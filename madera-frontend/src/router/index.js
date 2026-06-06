@@ -84,6 +84,24 @@ const router = createRouter({
           meta: { roles: ['ROLE_ADMIN', 'ROLE_ALMACEN'] }
         },
         {
+          path: 'proveedores',
+          name: 'proveedores',
+          component: () => import('@/views/proveedores/ProveedoresView.vue'),
+          meta: { roles: ['ROLE_ADMIN', 'ROLE_ALMACEN'] }
+        },
+        {
+          path: 'proveedores/nuevo',
+          name: 'proveedores-nuevo',
+          component: () => import('@/views/proveedores/ProveedorFormView.vue'),
+          meta: { roles: ['ROLE_ADMIN'] }
+        },
+        {
+          path: 'proveedores/:id',
+          name: 'proveedor-detalle',
+          component: () => import('@/views/proveedores/ProveedorDetailView.vue'),
+          meta: { roles: ['ROLE_ADMIN', 'ROLE_ALMACEN'] }
+        },
+        {
           path: 'usuarios',
           name: 'usuarios',
           component: () => import('@/views/usuarios/UsuariosView.vue'),

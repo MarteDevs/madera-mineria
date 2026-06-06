@@ -70,6 +70,15 @@
       </RouterLink>
 
       <RouterLink
+        v-if="authStore.esAdmin || authStore.esAlmacen"
+        to="/proveedores"
+        class="nav-link"
+      >
+        <span class="text-lg">🏭</span>
+        <span>Proveedores</span>
+      </RouterLink>
+
+      <RouterLink
         v-if="authStore.esAdmin"
         to="/usuarios"
         class="nav-link"
