@@ -80,6 +80,15 @@
 
       <RouterLink
         v-if="authStore.esAdmin"
+        to="/reportes"
+        class="nav-link"
+      >
+        <span class="text-lg">📊</span>
+        <span>Reportes</span>
+      </RouterLink>
+
+      <RouterLink
+        v-if="authStore.esAdmin"
         to="/usuarios"
         class="nav-link"
       >

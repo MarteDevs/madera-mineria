@@ -42,3 +42,7 @@ scrape_configs:
     static_configs:
       - targets: ['ms-proveedores:8087']
 
+  - job_name: 'ms-reportes'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['ms-reportes:8088']
