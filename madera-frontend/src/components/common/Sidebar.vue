@@ -79,6 +79,16 @@
       </RouterLink>
 
       <RouterLink
+        v-if="authStore.esAdmin || authStore.esAlmacen"
+        to="/mantenimiento"
+        class="nav-link"
+      >
+        <span class="text-lg">🔧</span>
+        <span>Mantenimiento</span>
+      </RouterLink>
+
+
+      <RouterLink
         v-if="authStore.esAdmin"
         to="/reportes"
         class="nav-link"

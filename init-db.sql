@@ -5,3 +5,5 @@ CREATE DATABASE notificaciones_db;
 CREATE DATABASE entrega_db;
 CREATE DATABASE proveedores_db;
 CREATE DATABASE reportes_db;
+CREATE DATABASE mantenimiento_db;
+

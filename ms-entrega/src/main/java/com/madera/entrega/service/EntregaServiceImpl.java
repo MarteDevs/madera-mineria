@@ -5,6 +5,7 @@ import com.madera.entrega.dto.AsignarTransportistaRequest;
 import com.madera.entrega.dto.ConfirmarRecepcionRequest;
 import com.madera.entrega.dto.EntregaResponse;
 import com.madera.entrega.dto.PedidoAprobadoEvent;
+import com.madera.entrega.dto.EntregaCompletadaEvent;
 import com.madera.entrega.exception.EntregaNotFoundException;
 import com.madera.entrega.model.Entrega;
 import com.madera.entrega.model.EstadoEntrega;
@@ -171,6 +172,22 @@ public class EntregaServiceImpl implements EntregaService {
             RabbitMQConfig.EXCHANGE,
             "pedido.entregado",
             evento
+        );
+
+        // Publicar evento para ms-mantenimiento (actualización de km y alertas)
+        EntregaCompletadaEvent eventoMant = EntregaCompletadaEvent.builder()
+            .entregaId(entrega.getId())
+            .pedidoId(entrega.getPedidoId())
+            .placaVehiculo(entrega.getVehiculo())
+            .conductorNombre(entrega.getTransportista())
+            .distanciaKm(entrega.getDistanciaKm())
+            .minaDestino(entrega.getMinaDestino())
+            .fechaEntrega(LocalDateTime.now())
+            .build();
+        amqpTemplate.convertAndSend(
+            RabbitMQConfig.EXCHANGE,
+            "entrega.completada",
+            eventoMant
         );
 
         return mapToResponse(entrega);

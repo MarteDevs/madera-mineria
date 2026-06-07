@@ -118,6 +118,12 @@ const router = createRouter({
           name: 'usuarios-nuevo',
           component: () => import('@/views/usuarios/UsuarioFormView.vue'),
           meta: { roles: ['ROLE_ADMIN'] }
+        },
+        {
+          path: 'mantenimiento',
+          name: 'mantenimiento',
+          component: () => import('@/views/mantenimiento/MantenimientoView.vue'),
+          meta: { roles: ['ROLE_ADMIN', 'ROLE_ALMACEN'] }
         }
       ]
     },

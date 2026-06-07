@@ -185,6 +185,29 @@ services:
     networks:
       - madera-network
 
+  ms-mantenimiento:
+    build: ./ms-mantenimiento
+    container_name: ms-mantenimiento
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/mantenimiento_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=marte
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - MANTENIMIENTO_KM_LIMITE=5000
+      - MANTENIMIENTO_DIAS_LIMITE=90
+    ports:
+      - "8089:8089"
+    networks:
+      - madera-network
+
   api-gateway:
     build: ./api-gateway
     container_name: api-gateway
@@ -204,6 +227,8 @@ services:
       ms-proveedores:
         condition: service_started
       ms-reportes:
+        condition: service_started
+      ms-mantenimiento:
         condition: service_started
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/

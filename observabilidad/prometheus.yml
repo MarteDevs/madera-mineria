@@ -46,3 +46,9 @@ scrape_configs:
     metrics_path: '/actuator/prometheus'
     static_configs:
       - targets: ['ms-reportes:8088']
+
+  - job_name: 'ms-mantenimiento'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['ms-mantenimiento:8089']
+
