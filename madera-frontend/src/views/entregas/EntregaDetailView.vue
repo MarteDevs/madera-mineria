@@ -114,23 +114,27 @@
           </div>
           <form @submit.prevent="handleAsignar" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
+              <label class="block text-xs font-semibold text-stone-700 mb-1">Vehículo / Placa *</label>
+              <select
+                v-model="vehiculoSeleccionadoId"
+                @change="onVehiculoSelect"
+                required
+                class="input-field text-xs bg-white font-medium"
+              >
+                <option value="">Seleccione un vehículo...</option>
+                <option v-for="v in vehiculosOperativos" :key="v.id" :value="v.id">
+                  {{ v.placa }} — {{ v.marca }} {{ v.modelo }} (Capacidad: {{ v.capacidadToneladasM3 }}m³)
+                </option>
+              </select>
+            </div>
+            <div>
               <label class="block text-xs font-semibold text-stone-700 mb-1">Nombre del Transportista *</label>
               <input
                 v-model="formAsignacion.transportista"
                 type="text"
                 required
-                placeholder="Ej. Juan Pérez Celis"
-                class="input-field text-xs bg-white"
-              />
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-stone-700 mb-1">Vehículo / Placa *</label>
-              <input
-                v-model="formAsignacion.vehiculo"
-                type="text"
-                required
-                placeholder="Ej. Volvo FMX - V4D-876"
-                class="input-field text-xs bg-white"
+                placeholder="Se auto-completa al elegir vehículo"
+                class="input-field text-xs bg-white font-medium"
               />
             </div>
             <div class="sm:col-span-2 flex justify-end">
@@ -299,6 +303,7 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useEntregasStore } from '@/stores/entregas'
+import { useMantenimientoStore } from '@/stores/mantenimiento'
 import { useDialogStore } from '@/stores/dialog'
 import BadgeEstado from '@/components/common/BadgeEstado.vue'
 import LoadingSpinner from '@/components/common/LoadingSpinner.vue'
@@ -307,6 +312,7 @@ import AlertMessage from '@/components/common/AlertMessage.vue'
 const route = useRoute()
 const authStore = useAuthStore()
 const entregasStore = useEntregasStore()
+const mantenimientoStore = useMantenimientoStore()
 const dialogStore = useDialogStore()
 
 const entregaId = route.params.id
@@ -316,10 +322,27 @@ const error = ref(null)
 const successMsg = ref(null)
 const submitting = ref(false)
 
+const vehiculoSeleccionadoId = ref('')
+
 const formAsignacion = reactive({
   transportista: '',
   vehiculo: ''
 })
+
+const vehiculosOperativos = computed(() => {
+  return mantenimientoStore.vehiculos.filter(v => v.estado === 'OPERATIVO')
+})
+
+function onVehiculoSelect() {
+  const v = mantenimientoStore.vehiculos.find(v => v.id === vehiculoSeleccionadoId.value)
+  if (v) {
+    formAsignacion.vehiculo = `${v.marca} ${v.modelo} - ${v.placa}`
+    formAsignacion.transportista = v.conductorNombre || ''
+  } else {
+    formAsignacion.vehiculo = ''
+    formAsignacion.transportista = ''
+  }
+}
 
 const formConfirmacion = reactive({
   recibidoPor: '',
@@ -351,7 +374,24 @@ async function cargarDetalle() {
   }
 }
 
-onMounted(cargarDetalle)
+onMounted(async () => {
+  await cargarDetalle()
+  await mantenimientoStore.fetchVehiculos()
+  
+  // Tratar de pre-seleccionar el vehículo en el select si ya está asignado
+  if (entrega.value && entrega.value.vehiculo) {
+    const parts = entrega.value.vehiculo.split(' - ')
+    const placa = parts.length > 1 ? parts[parts.length - 1].trim() : entrega.value.vehiculo.trim()
+    const match = mantenimientoStore.vehiculos.find(v => 
+      v.placa === placa || 
+      v.placa === entrega.value.vehiculo ||
+      entrega.value.vehiculo.includes(v.placa)
+    )
+    if (match) {
+      vehiculoSeleccionadoId.value = match.id
+    }
+  }
+})
 
 async function handleAsignar() {
   if (!formAsignacion.transportista.trim() || !formAsignacion.vehiculo.trim()) {
