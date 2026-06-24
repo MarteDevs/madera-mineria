@@ -66,10 +66,10 @@ public class MaderaController {
 
     @PostMapping("/{id}/entrada")
     public ResponseEntity<MaderaResponse> registrarEntrada(
-            @PathVariable Long id,
-            @RequestParam Integer cantidad,
-            @RequestParam String motivo,
-            @RequestParam String responsable) {
+            @PathVariable("id") Long id,
+            @RequestParam("cantidad") Integer cantidad,
+            @RequestParam("motivo") String motivo,
+            @RequestParam("responsable") String responsable) {
         return ResponseEntity.ok(maderaService.registrarEntrada(id, cantidad, motivo, responsable));
     }
 }

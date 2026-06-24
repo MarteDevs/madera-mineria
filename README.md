@@ -373,8 +373,10 @@ docker-compose down -v
 ---
 
 ## 👨‍💻 Autor
+**Nombre:** Marco Rodrigo Polo Silva
+**Colaborador:** Ismael Iparraguirre
 
-Desarrollado como proyecto final del curso **Desarrollo de Aplicaciones Web II**  
+**Desarrollado como proyecto final del curso **Desarrollo de Aplicaciones Web II**  
 **CIBERTEC** — Facultad de Tecnologías de la Información  
 Período 2026
 

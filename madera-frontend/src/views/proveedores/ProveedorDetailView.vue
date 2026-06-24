@@ -241,10 +241,7 @@
                 <label class="block font-bold text-stone-600 uppercase mb-1">Tipo de Madera *</label>
                 <select v-model="formContrato.tipoMadera" required class="input-field py-1.5">
                   <option value="">Seleccione...</option>
-                  <option value="eucalipto">Eucalipto</option>
-                  <option value="pino">Pino</option>
-                  <option value="roble">Roble</option>
-                  <option value="lupuna">Lupuna</option>
+                  <option v-for="mad in maderasActivas" :key="'tipo-'+mad.id" :value="mad.tipo">{{ mad.tipo }} ({{ mad.unidad }})</option>
                 </select>
               </div>
 

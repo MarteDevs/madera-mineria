@@ -32,6 +32,7 @@ public class Vehiculo {
     private String modelo;
     private Integer anio;
     private String tipo;                   // "camion", "camioneta", "furgon"
+    @Column(name = "capacidad_toneladas_m3")
     private Double capacidadToneladasM3;   // Capacidad de carga en m3 o toneladas
 
     // Conductor asignado
